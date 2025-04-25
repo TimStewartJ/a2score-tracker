@@ -28,8 +28,6 @@ function ScoreBoard() {
     }
   };
 
-  const buttons = [-10, -5, -2, -1, 1, 2, 5];
-
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">
       <header className="flex items-center justify-between bg-gray-800 p-4">
@@ -49,7 +47,6 @@ function ScoreBoard() {
             <PlayerCard
               key={p.id}
               player={p}
-              buttons={buttons}
             />
           ))}
         </div>

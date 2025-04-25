@@ -5,10 +5,9 @@ type Player = { id: string; name: string; score: number };
 
 type Props = {
   player: Player;
-  buttons: number[];
 };
 
-export default function PlayerCard({ player, buttons }: Props) {
+export default function PlayerCard({ player }: Props) {
   const { increment, decrement } = useScore();
   const [pendingChange, setPendingChange] = useState(0);
   const [progress, setProgress] = useState(100);
@@ -88,6 +87,8 @@ export default function PlayerCard({ player, buttons }: Props) {
   };
 
   const { radius, circumference, strokeDashoffset } = calculateCircleProgress();
+
+  const buttons = [-10, -5, -2, -1, 1, 2, 5];
 
   return (
     <div className="flex-1 basis-0 bg-gray-700 rounded-lg p-4 flex flex-col items-center justify-between min-h-72 relative">
