@@ -57,7 +57,11 @@ function ScoreBoard() {
                     onClick={() =>
                       amt > 0 ? increment(p.id, amt) : decrement(p.id, -amt)
                     }
-                    className="w-12 h-12 bg-white text-gray-900 rounded hover:bg-gray-200"
+                    className={`w-12 h-12 rounded hover:bg-opacity-80 ${
+                      amt > 0
+                        ? 'bg-green-500 text-white hover:bg-green-600'
+                        : 'bg-red-500 text-white hover:bg-red-600'
+                    }`}
                   >
                     {amt > 0 ? `+${amt}` : amt}
                   </button>
