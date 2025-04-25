@@ -1,13 +1,10 @@
+/**
+ * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
+ * for Docker builds.
+ */
 import "./src/env.js";
-import withPWA from "next-pwa";
 
-const nextConfig = {
-  dest: "public",
-  pwa: {
-    register: true,                   // auto‐register the service worker
-    skipWaiting: true,                // activate new SW immediately
-    disable: process.env.NODE_ENV === "development"
-  }
-};
+/** @type {import("next").NextConfig} */
+const config = {};
 
-export default withPWA(nextConfig);
+export default config;
