@@ -21,14 +21,14 @@ export default function PlayerCard({ player, buttons }: Props) {
         {buttons.map((amt) => (
           <button
             key={amt}
-            onClick={() =>
-              amt > 0 ? increment(player.id, amt) : decrement(player.id, -amt)
-            }
-            className={`w-12 h-12 rounded hover:bg-opacity-80 ${
-              amt > 0
-                ? 'bg-green-500 text-white hover:bg-green-600'
-                : 'bg-red-500 text-white hover:bg-red-600'
-            }`}
+            onClick={(e) => {
+              console.log(`Button clicked: ${amt} timestamp: ${Date.now()}`);
+              return amt > 0 ? increment(player.id, amt) : decrement(player.id, -amt);
+            }}
+            className={`w-12 h-12 rounded hover:bg-opacity-80 ${amt > 0
+              ? 'bg-green-500 text-white hover:bg-green-600'
+              : 'bg-red-500 text-white hover:bg-red-600'
+              }`}
           >
             {amt > 0 ? `+${amt}` : amt}
           </button>

@@ -66,10 +66,14 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
     state,
     addPlayer: (id, name) => dispatch({ type: "add", payload: { id, name } }),
     removePlayer: (id) => dispatch({ type: "remove", payload: { id } }),
-    increment: (id, amount) =>
-      dispatch({ type: "increment", payload: { id, amount } }),
-    decrement: (id, amount) =>
-      dispatch({ type: "decrement", payload: { id, amount } }),
+    increment: (id, amount) => {
+      console.log("increment called", { id, amount });
+      dispatch({ type: "increment", payload: { id, amount } });
+    },
+    decrement: (id, amount) => {
+      console.log("decrement called", { id, amount });
+      dispatch({ type: "decrement", payload: { id, amount } });
+    },
     reset: () => dispatch({ type: "reset" }),
   };
 
