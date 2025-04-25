@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect } from "react";
 import { ScoreProvider, useScore } from "~/context/ScoreContext";
+import PlayerCard from "./_components/PlayerCard";
 
 function ScoreBoard() {
-  const { state, addPlayer, removePlayer, increment, decrement } = useScore();
+  const { state, addPlayer, removePlayer } = useScore();
 
   // Initialize with two default players
   useEffect(() => {
@@ -45,29 +46,11 @@ function ScoreBoard() {
       <main className="flex-1 overflow-auto p-4">
         <div className="flex flex-wrap gap-4 h-full">
           {state.players.map((p) => (
-            <div key={p.id} className="flex-1 basis-0 bg-gray-700 rounded-lg p-4 flex flex-col items-center justify-between min-h-72">
-              <div className="flex flex-col items-center flex-1 w-full">
-                <div className="text-lg font-semibold mb-2">{p.name}</div>
-                <div className="text-6xl font-extrabold mb-4">{p.score}</div>
-              </div>
-              <div className="flex flex-wrap gap-2 justify-center mt-4 w-full">
-                {buttons.map((amt) => (
-                  <button
-                    key={amt}
-                    onClick={() =>
-                      amt > 0 ? increment(p.id, amt) : decrement(p.id, -amt)
-                    }
-                    className={`w-12 h-12 rounded hover:bg-opacity-80 ${
-                      amt > 0
-                        ? 'bg-green-500 text-white hover:bg-green-600'
-                        : 'bg-red-500 text-white hover:bg-red-600'
-                    }`}
-                  >
-                    {amt > 0 ? `+${amt}` : amt}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <PlayerCard
+              key={p.id}
+              player={p}
+              buttons={buttons}
+            />
           ))}
         </div>
       </main>
