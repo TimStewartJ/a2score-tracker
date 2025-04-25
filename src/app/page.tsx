@@ -1,69 +1,78 @@
-import Link from "next/link";
+"use client";
+import React, { useEffect } from "react";
+import { ScoreProvider, useScore } from "~/context/ScoreContext";
 
-import { LatestPost } from "~/app/_components/post";
-import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
+function ScoreBoard() {
+  const { state, addPlayer, removePlayer, increment, decrement } = useScore();
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await auth();
+  // Initialize with two default players
+  useEffect(() => {
+    if (state.players.length === 0) {
+      addPlayer("player-1", "Player 1");
+      addPlayer("player-2", "Player 2");
+    }
+  }, [state.players.length, addPlayer]);
 
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
-  }
+  const handleAdd = () => {
+    const nextIndex = state.players.length + 1;
+    addPlayer(`player-${Date.now()}`, `Player ${nextIndex}`);
+  };
+
+  const handleRemove = () => {
+    if (state.players.length > 2) {
+      const lastPlayer = state.players[state.players.length - 1];
+      if (lastPlayer) {
+        removePlayer(lastPlayer.id);
+      }
+    }
+  };
+
+  const buttons = [-10, -5, -2, -1, 1, 2, 5];
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
+    <div className="h-screen flex flex-col bg-gray-900 text-white">
+      <header className="flex items-center justify-between bg-gray-800 p-4">
+        <h1 className="text-xl font-bold">Score Keeper</h1>
+        <div className="space-x-2">
+          <button onClick={handleAdd} className="px-4 py-2 bg-green-600 rounded hover:bg-green-700">
+            Add Player
+          </button>
+          <button onClick={handleRemove} disabled={state.players.length <= 2} className="px-4 py-2 bg-red-600 rounded disabled:opacity-50 hover:bg-red-700">
+            Remove Player
+          </button>
+        </div>
+      </header>
+      <main className="flex-1 overflow-auto p-4">
+        <div className="flex flex-wrap gap-4 justify-center">
+          {state.players.map((p) => (
+            <div key={p.id} className="w-64 bg-gray-700 rounded-lg p-4 flex flex-col items-center">
+              <div className="text-lg font-semibold mb-2">{p.name}</div>
+              <div className="text-6xl font-extrabold mb-4">{p.score}</div>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {buttons.map((amt) => (
+                  <button
+                    key={amt}
+                    onClick={() =>
+                      amt > 0 ? increment(p.id, amt) : decrement(p.id, -amt)
+                    }
+                    className="w-12 h-12 bg-white text-gray-900 rounded hover:bg-gray-200"
+                  >
+                    {amt > 0 ? `+${amt}` : amt}
+                  </button>
+                ))}
               </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
-              </p>
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                {session ? "Sign out" : "Sign in"}
-              </Link>
             </div>
-          </div>
-
-          {session?.user && <LatestPost />}
+          ))}
         </div>
       </main>
-    </HydrateClient>
+    </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ScoreProvider>
+      <ScoreBoard />
+    </ScoreProvider>
   );
 }
