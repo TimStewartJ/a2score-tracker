@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   title: "Score Keeper",
   description: "Score keeping app for games",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Score Keeper',
+  }
 };
 
 const geist = Geist({
