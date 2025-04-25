@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useScore } from "~/context/ScoreContext";
 
 type Player = { id: string; name: string; score: number };
@@ -13,57 +13,56 @@ export default function PlayerCard({ player, buttons }: Props) {
   const [pendingChange, setPendingChange] = useState(0);
   const [progress, setProgress] = useState(100);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  
-  const applyPendingChanges = useCallback(() => {
-    if (pendingChange > 0) {
-      increment(player.id, pendingChange);
-    } else if (pendingChange < 0) {
-      decrement(player.id, -pendingChange);
-    }
-    setPendingChange(0);
-    setProgress(100);
-  }, [increment, decrement, pendingChange, player.id]);
-  
-  // Reset timer when pendingChange changes
+
+  // Use refs to always have the latest increment/decrement
+  const incrementRef = useRef(increment);
+  const decrementRef = useRef(decrement);
+  useEffect(() => {
+    incrementRef.current = increment;
+    decrementRef.current = decrement;
+  }, [increment, decrement]);
+
+  // Store applyPendingChanges in a ref so effect only depends on pendingChange
+  const applyRef = useRef<() => void>(() => undefined);
+  useEffect(() => {
+    applyRef.current = () => {
+      if (pendingChange > 0) {
+        incrementRef.current(player.id, pendingChange);
+      } else if (pendingChange < 0) {
+        decrementRef.current(player.id, -pendingChange);
+      }
+      setPendingChange(0);
+      setProgress(100);
+    };
+  }, [pendingChange, player.id]);
+
   useEffect(() => {
     if (pendingChange === 0) return;
 
-    // Clear any existing timer
+    // Clear any existing timers
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       clearInterval(timerRef.current);
     }
 
-    // Reset progress bar
     setProgress(0);
-
-    // Start progress animation
     const startTime = Date.now();
-    const duration = 2000; // 2 seconds
-    
+    const duration = 2000;
     const intervalId = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const newProgress = Math.min(100, (elapsed / duration) * 100);
-      setProgress(newProgress);
-      
-      if (elapsed >= duration) {
-        clearInterval(intervalId);
-      }
+      setProgress(Math.min(100, (elapsed / duration) * 100));
+      if (elapsed >= duration) clearInterval(intervalId);
     }, 16);
-
-    // Set timer to apply changes after 1 second
-    timerRef.current = setTimeout(() => {
-      applyPendingChanges();
+    const timeoutId = setTimeout(() => {
+      applyRef.current();
       clearInterval(intervalId);
     }, duration);
-
+    timerRef.current = timeoutId;
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-        clearInterval(intervalId);
-      }
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
     };
-  }, [pendingChange, applyPendingChanges]);
+  }, [pendingChange]);   // now only depends on `pendingChange`
 
   const handleScoreChange = (amt: number) => {
     setPendingChange(prev => prev + amt);
