@@ -43,12 +43,14 @@ function ScoreBoard() {
         </div>
       </header>
       <main className="flex-1 overflow-auto p-4">
-        <div className="flex flex-wrap gap-4 justify-center">
+        <div className="flex flex-wrap gap-4 h-full">
           {state.players.map((p) => (
-            <div key={p.id} className="w-64 bg-gray-700 rounded-lg p-4 flex flex-col items-center">
-              <div className="text-lg font-semibold mb-2">{p.name}</div>
-              <div className="text-6xl font-extrabold mb-4">{p.score}</div>
-              <div className="flex flex-wrap gap-2 justify-center">
+            <div key={p.id} className="flex-1 basis-0 bg-gray-700 rounded-lg p-4 flex flex-col items-center justify-between min-h-72">
+              <div className="flex flex-col items-center flex-1 w-full">
+                <div className="text-lg font-semibold mb-2">{p.name}</div>
+                <div className="text-6xl font-extrabold mb-4">{p.score}</div>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-center mt-4 w-full">
                 {buttons.map((amt) => (
                   <button
                     key={amt}
