@@ -94,7 +94,7 @@ export default function PlayerCard({ player }: Props) {
     <div className="flex-1 basis-0 bg-gray-700 rounded-lg p-4 flex flex-col items-center justify-between min-h-72 relative">
       <div className="flex flex-col items-center flex-1 w-full">
         <div className="text-lg font-semibold mb-2">{player.name}</div>
-        <div className="text-6xl font-extrabold mb-1">{player.score}</div>
+        <div className="text-9xl font-extrabold mb-1">{player.score}</div>
       </div>
       
       {/* Floating pending change with circular progress */}
@@ -121,7 +121,7 @@ export default function PlayerCard({ player }: Props) {
                 stroke="currentColor" 
                 fill="none"
                 strokeLinecap="round"
-                className={`transition-all duration-100 ${getProgressColor()}`}
+                className={`transition-all duration-10 ${getProgressColor()}`}
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
               />
@@ -137,7 +137,7 @@ export default function PlayerCard({ player }: Props) {
         </div>
       )}
       
-      <div className="flex flex-wrap gap-2 justify-center mt-4 w-full">
+      <div className="flex flex-row gap-2 justify-center mt-4 w-full">
         {buttons.map((amt) => (
           <button
             key={amt}
