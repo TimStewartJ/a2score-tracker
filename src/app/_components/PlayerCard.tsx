@@ -75,9 +75,11 @@ export default function PlayerCard({ player }: Props) {
       {/* Floating pending change with circular progress */}
       {pendingChange !== 0 && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <div className="w-20 h-20 flex items-center justify-center">
+          {/* Add a background for visibility */}
+          <div className="w-20 h-20 flex items-center justify-center relative">
+            <div className="absolute inset-0 rounded-full bg-gray-900 bg-opacity-70 z-0" />
             {/* SVG Circular progress bar */}
-            <svg className="w-full h-full -rotate-90 absolute">
+            <svg className="w-full h-full -rotate-90 absolute z-10">
               {/* Background circle */}
               <circle 
                 cx="40" 
@@ -102,7 +104,7 @@ export default function PlayerCard({ player }: Props) {
               />
             </svg>
             {/* Text in the middle of circle */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
               <span className={`text-2xl font-bold ${pendingChange > 0 ? 'text-green-400' : 'text-red-400'}`}>
                 {pendingChange > 0 ? '+' : ''}{pendingChange}
               </span>
