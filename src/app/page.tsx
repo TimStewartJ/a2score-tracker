@@ -42,7 +42,7 @@ function ScoreBoard() {
         </div>
       </header>
       <main className="flex-1 overflow-auto p-4">
-        <div className="flex flex-wrap gap-4 h-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
           {state.players.map((p) => (
             <PlayerCard
               key={p.id}
