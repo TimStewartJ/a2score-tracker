@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useScore } from "~/context/ScoreContext";
+import { useElapsedTime } from 'use-elapsed-time';
 
 type Player = { id: string; name: string; score: number };
 
@@ -10,8 +11,6 @@ type Props = {
 export default function PlayerCard({ player }: Props) {
   const { increment, decrement } = useScore();
   const [pendingChange, setPendingChange] = useState(0);
-  const [progress, setProgress] = useState(100);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use refs to always have the latest increment/decrement
   const incrementRef = useRef(increment);
@@ -31,40 +30,27 @@ export default function PlayerCard({ player }: Props) {
         decrementRef.current(player.id, -pendingChange);
       }
       setPendingChange(0);
-      setProgress(100);
     };
   }, [pendingChange, player.id]);
 
-  useEffect(() => {
-    if (pendingChange === 0) return;
-
-    // Clear any existing timers
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      clearInterval(timerRef.current);
-    }
-
-    setProgress(0);
-    const startTime = Date.now();
-    const duration = 2000;
-    const intervalId = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      setProgress(Math.min(100, (elapsed / duration) * 100));
-      if (elapsed >= duration) clearInterval(intervalId);
-    }, 16);
-    const timeoutId = setTimeout(() => {
+  // Timer duration in seconds
+  const timerDuration = 2;
+  const isPlaying = pendingChange !== 0;
+  const { elapsedTime, reset } = useElapsedTime({
+    isPlaying,
+    duration: timerDuration,
+    onComplete: () => {
       applyRef.current();
-      clearInterval(intervalId);
-    }, duration);
-    timerRef.current = timeoutId;
-    return () => {
-      clearTimeout(timeoutId);
-      clearInterval(intervalId);
-    };
-  }, [pendingChange]);   // now only depends on `pendingChange`
+    },
+    updateInterval: 0,
+  });
+
+  // Progress for the circle (0 to 1)
+  const progress = Math.min(1, elapsedTime / timerDuration);
 
   const handleScoreChange = (amt: number) => {
     setPendingChange(prev => prev + amt);
+    reset(); // restart timer
   };
 
   const getProgressColor = () => {
@@ -74,19 +60,9 @@ export default function PlayerCard({ player }: Props) {
   };
 
   // Calculate the circle's properties
-  const calculateCircleProgress = () => {
-    const radius = 24; // Circle radius
-    const circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = circumference * (1 - progress / 100);
-    
-    return {
-      radius,
-      circumference,
-      strokeDashoffset
-    };
-  };
-
-  const { radius, circumference, strokeDashoffset } = calculateCircleProgress();
+  const radius = 24;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - progress);
 
   const buttons = [-10, -5, -2, -1, 1, 2, 5];
 
@@ -96,7 +72,6 @@ export default function PlayerCard({ player }: Props) {
         <div className="text-lg font-semibold mb-2">{player.name}</div>
         <div className="text-9xl font-extrabold mb-1">{player.score}</div>
       </div>
-      
       {/* Floating pending change with circular progress */}
       {pendingChange !== 0 && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
@@ -126,7 +101,6 @@ export default function PlayerCard({ player }: Props) {
                 strokeDashoffset={strokeDashoffset}
               />
             </svg>
-            
             {/* Text in the middle of circle */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
               <span className={`text-2xl font-bold ${pendingChange > 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -136,7 +110,6 @@ export default function PlayerCard({ player }: Props) {
           </div>
         </div>
       )}
-      
       <div className="flex flex-row gap-2 justify-center mt-4 w-full">
         {buttons.map((amt) => (
           <button
