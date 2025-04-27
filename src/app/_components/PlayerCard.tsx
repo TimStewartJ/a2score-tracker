@@ -10,10 +10,22 @@ type Props = {
 };
 
 export default function PlayerCard({ player }: Props) {
-  const { increment, decrement } = useScore();
+  const { increment, decrement, updatePlayerName } = useScore();
   const [pendingChange, setPendingChange] = useState(0);
   // Replace boolean with rotation state (0, 90, 180, 270)
   const [rotation, setRotation] = useState(0);
+  // Add state for editing name
+  const [editing, setEditing] = useState(false);
+  const [nameInput, setNameInput] = useState(player.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Focus input when editing
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editing]);
 
   // Use refs to always have the latest increment/decrement
   const incrementRef = useRef(increment);
@@ -85,7 +97,48 @@ export default function PlayerCard({ player }: Props) {
         <ArrowPathIcon className="w-6 h-6 text-white" />
       </button>
       <div className="flex flex-col items-center flex-1 w-full">
-        <div className="text-lg font-semibold mb-2">{player.name}</div>
+        <div className="text-lg font-semibold mb-2">
+          {editing ? (
+            <input
+              ref={inputRef}
+              className="bg-gray-800 text-white rounded px-2 py-1 text-center outline-none border border-gray-600 focus:border-blue-400 transition-all w-32"
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              onBlur={() => {
+                setEditing(false);
+                if (nameInput.trim() && nameInput !== player.name) {
+                  updatePlayerName(player.id, nameInput.trim());
+                } else {
+                  setNameInput(player.name); // revert
+                }
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  setEditing(false);
+                  if (nameInput.trim() && nameInput !== player.name) {
+                    updatePlayerName(player.id, nameInput.trim());
+                  } else {
+                    setNameInput(player.name);
+                  }
+                } else if (e.key === 'Escape') {
+                  setEditing(false);
+                  setNameInput(player.name);
+                }
+              }}
+              maxLength={32}
+            />
+          ) : (
+            <button
+              className="hover:underline focus:underline text-inherit bg-transparent border-none p-0 m-0 cursor-pointer"
+              onClick={() => setEditing(true)}
+              tabIndex={0}
+              aria-label="Edit player name"
+              type="button"
+            >
+              {player.name}
+            </button>
+          )}
+        </div>
         <div className="text-9xl font-extrabold mb-1">{player.score}</div>
       </div>
       {/* Floating pending change with circular progress */}
