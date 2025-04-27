@@ -54,6 +54,7 @@ export default function ScoreBoard() {
               value={defaultScore}
               onChange={handleDefaultScoreChange}
               className="w-20 px-2 py-1 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+              onFocus={(e) => e.target.select()}
             />
           </label>
           <button
