@@ -1,4 +1,5 @@
 import { type MetadataRoute } from "next"
+import iconsData from '../../public/icons.json'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -11,6 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#1f2937",
     id: "com.a2score.app",
     scope: "/",
-    orientation: "landscape"
+    orientation: "landscape",
+    icons: iconsData.icons
   }
 }
