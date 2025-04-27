@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useScore } from "~/context/ScoreContext";
 import { useElapsedTime } from 'use-elapsed-time';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 type Player = { id: string; name: string; score: number };
 
@@ -11,6 +12,8 @@ type Props = {
 export default function PlayerCard({ player }: Props) {
   const { increment, decrement } = useScore();
   const [pendingChange, setPendingChange] = useState(0);
+  // Replace boolean with rotation state (0, 90, 180, 270)
+  const [rotation, setRotation] = useState(0);
 
   // Use refs to always have the latest increment/decrement
   const incrementRef = useRef(increment);
@@ -67,7 +70,20 @@ export default function PlayerCard({ player }: Props) {
   const buttons = [-10, -5, -2, -1, 1, 2, 5];
 
   return (
-    <div className="flex-1 basis-0 bg-gray-700 rounded-lg p-4 flex flex-col items-center justify-between min-h-72 relative">
+    <div
+      className="flex-1 basis-0 bg-gray-700 rounded-lg p-4 flex flex-col items-center justify-between min-h-72 relative transition-transform duration-500"
+      style={{ transform: `rotate(${rotation}deg)` }}
+    >
+      {/* Rotation button with Heroicons Arrow Path icon */}
+      <button
+        className="absolute top-2 right-2 z-30 bg-gray-800 bg-opacity-80 rounded-full p-1 hover:bg-gray-600 transition-colors"
+        onClick={() => setRotation((r) => (r + 180) % 360)}
+        aria-label="Rotate Card"
+        type="button"
+      >
+        {/* Heroicons Arrow Path icon from heroicons/react */}
+        <ArrowPathIcon className="w-6 h-6 text-white" />
+      </button>
       <div className="flex flex-col items-center flex-1 w-full">
         <div className="text-lg font-semibold mb-2">{player.name}</div>
         <div className="text-9xl font-extrabold mb-1">{player.score}</div>
