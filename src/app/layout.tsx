@@ -10,7 +10,7 @@ import Head from "next/head";
 export const metadata: Metadata = {
   title: "Score Keeper",
   description: "Score keeping app for games",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/ios/64.png" }],
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
