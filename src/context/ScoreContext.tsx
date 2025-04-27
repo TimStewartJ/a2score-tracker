@@ -2,31 +2,35 @@
 import React, { createContext, useContext, useReducer, type ReactNode } from "react";
 
 type Player = { id: string; name: string; score: number };
-type State = { players: Player[] };
+type State = { players: Player[], defaultScore: number };
 type Action =
   | { type: "add"; payload: { id: string; name: string } }
   | { type: "remove"; payload: { id: string } }
   | { type: "increment"; payload: { id: string; amount?: number } }
   | { type: "decrement"; payload: { id: string; amount?: number } }
-  | { type: "reset" };
+  | { type: "reset" }
+  | { type: "setAllScores"; payload: { score: number } };
 
-const initialState: State = { players: [] };
+const initialState: State = { players: [], defaultScore: 50 };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "add":
       return {
+        ...state,
         players: [
           ...state.players,
-          { id: action.payload.id, name: action.payload.name, score: 0 },
+          { id: action.payload.id, name: action.payload.name, score: state.defaultScore },
         ],
       };
     case "remove":
       return {
+        ...state,
         players: state.players.filter((p) => p.id !== action.payload.id),
       };
     case "increment":
       return {
+        ...state,
         players: state.players.map((p) =>
           p.id === action.payload.id
             ? { ...p, score: p.score + (action.payload.amount ?? 1) }
@@ -35,6 +39,7 @@ function reducer(state: State, action: Action): State {
       };
     case "decrement":
       return {
+        ...state,
         players: state.players.map((p) =>
           p.id === action.payload.id
             ? { ...p, score: p.score - (action.payload.amount ?? 1) }
@@ -42,7 +47,14 @@ function reducer(state: State, action: Action): State {
         ),
       };
     case "reset":
-      return { players: state.players.map((p) => ({ ...p, score: 0 })) };
+      return { ...state, players: state.players.map((p) => ({ ...p, score: 0 })) };
+    case "setAllScores":
+      if (action.payload.score === state.defaultScore) return state; // No change in score
+      return {
+        ...state,
+        defaultScore: action.payload.score,
+        players: state.players.map((p) => ({ ...p, score: action.payload.score })),
+      };
     default:
       return state;
   }
@@ -55,6 +67,7 @@ type ContextType = {
   increment: (id: string, amount?: number) => void;
   decrement: (id: string, amount?: number) => void;
   reset: () => void;
+  setAllScores: (score: number) => void;
 };
 
 const ScoreContext = createContext<ContextType | undefined>(undefined);
@@ -75,6 +88,10 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "decrement", payload: { id, amount } });
     },
     reset: () => dispatch({ type: "reset" }),
+    setAllScores: (score) => {
+      if (score === state.defaultScore) return; // Prevent dispatch if same as default
+      dispatch({ type: "setAllScores", payload: { score } });
+    },
   };
 
   return <ScoreContext.Provider value={value}>{children}</ScoreContext.Provider>;
