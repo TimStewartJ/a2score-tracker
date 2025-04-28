@@ -2,7 +2,14 @@
 import React, { createContext, useContext, useReducer, type ReactNode } from "react";
 
 type Player = { id: string; name: string; score: number };
-type State = { players: Player[], defaultScore: number };
+type ScoreChange = {
+  type: "increment" | "decrement";
+  id: string;
+  name?: string;
+  diff: number;
+  timestamp: number;
+};
+type State = { players: Player[], defaultScore: number, history: ScoreChange[] };
 type Action =
   | { type: "add"; payload: { id: string; name: string } }
   | { type: "remove"; payload: { id: string } }
@@ -12,49 +19,72 @@ type Action =
   | { type: "setAllScores"; payload: { score: number } }
   | { type: "updateName"; payload: { id: string; name: string } };
 
-const initialState: State = { players: [], defaultScore: 50 };
+const initialState: State = { players: [], defaultScore: 50, history: [] };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "add":
+    case "add": {
+      const newPlayer = { id: action.payload.id, name: action.payload.name, score: state.defaultScore };
       return {
         ...state,
-        players: [
-          ...state.players,
-          { id: action.payload.id, name: action.payload.name, score: state.defaultScore },
-        ],
+        players: [...state.players, newPlayer],
       };
-    case "remove":
+    }
+    case "remove": {
       return {
         ...state,
         players: state.players.filter((p) => p.id !== action.payload.id),
       };
-    case "increment":
+    }
+    case "increment": {
+      const amount = action.payload.amount ?? 1;
       return {
         ...state,
         players: state.players.map((p) =>
-          p.id === action.payload.id
-            ? { ...p, score: p.score + (action.payload.amount ?? 1) }
-            : p
+          p.id === action.payload.id ? { ...p, score: p.score + amount } : p
         ),
+        history: [
+          ...state.history,
+          {
+            type: "increment",
+            id: action.payload.id,
+            diff: amount,
+            timestamp: Date.now(),
+          },
+        ],
       };
-    case "decrement":
+    }
+    case "decrement": {
+      const amount = action.payload.amount ?? 1;
       return {
         ...state,
         players: state.players.map((p) =>
-          p.id === action.payload.id
-            ? { ...p, score: p.score - (action.payload.amount ?? 1) }
-            : p
+          p.id === action.payload.id ? { ...p, score: p.score - amount } : p
         ),
+        history: [
+          ...state.history,
+          {
+            type: "decrement",
+            id: action.payload.id,
+            diff: -amount,
+            timestamp: Date.now(),
+          },
+        ],
       };
+    }
     case "reset":
-      return { ...state, players: state.players.map((p) => ({ ...p, score: 0 })) };
+      return {
+        ...state,
+        players: state.players.map((p) => ({ ...p, score: state.defaultScore })),
+        history: [],
+      };
     case "setAllScores":
-      if (action.payload.score === state.defaultScore) return state; // No change in score
+      if (action.payload.score === state.defaultScore) return state;
       return {
         ...state,
         defaultScore: action.payload.score,
         players: state.players.map((p) => ({ ...p, score: action.payload.score })),
+        history: [],
       };
     case "updateName":
       return {
@@ -77,6 +107,7 @@ type ContextType = {
   reset: () => void;
   setAllScores: (score: number) => void;
   updatePlayerName: (id: string, name: string) => void;
+  history: ScoreChange[];
 };
 
 const ScoreContext = createContext<ContextType | undefined>(undefined);
@@ -104,6 +135,7 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
     updatePlayerName: (id, name) => {
       dispatch({ type: "updateName", payload: { id, name } });
     },
+    history: state.history,
   };
 
   return <ScoreContext.Provider value={value}>{children}</ScoreContext.Provider>;
