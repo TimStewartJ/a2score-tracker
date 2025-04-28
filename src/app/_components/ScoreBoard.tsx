@@ -3,10 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useScore } from "~/context/ScoreContext";
 import PlayerCard from "./PlayerCard";
 import { PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
+import { ClockIcon } from "@heroicons/react/24/outline";
+import ScoreHistory from "./ScoreHistory";
 
 export default function ScoreBoard() {
   const { state, addPlayer, removePlayer, setAllScores } = useScore();
   const [defaultScore, setDefaultScore] = useState(state.defaultScore);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Initialize with two default players
   useEffect(() => {
@@ -72,6 +75,13 @@ export default function ScoreBoard() {
           >
             <MinusIcon className="h-6 w-6 text-white" />
           </button>
+          <button
+            onClick={() => setShowHistory(true)}
+            className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 flex items-center justify-center"
+            aria-label="Show Score History"
+          >
+            <ClockIcon className="h-6 w-6 text-white" />
+          </button>
         </div>
       </header>
       <main className="flex-1 overflow-auto p-4">
@@ -81,6 +91,7 @@ export default function ScoreBoard() {
           ))}
         </div>
       </main>
+      {showHistory && <ScoreHistory onClose={() => setShowHistory(false)} />}
     </div>
   );
 }
