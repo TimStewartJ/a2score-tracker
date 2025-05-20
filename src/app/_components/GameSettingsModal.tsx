@@ -5,6 +5,7 @@ import { PlusIcon, MinusIcon, Cog6ToothIcon, XMarkIcon } from "@heroicons/react/
 export default function GameSettingsModal({ onClose }: { onClose: () => void }) {
   const { state, addPlayer, removePlayer, setAllScores } = useScore();
   const [defaultScore, setDefaultScore] = React.useState(state.defaultScore);
+  const [showFeedback, setShowFeedback] = React.useState(false);
 
   React.useEffect(() => {
     setDefaultScore(state.defaultScore);
@@ -32,6 +33,10 @@ export default function GameSettingsModal({ onClose }: { onClose: () => void }) 
   // Apply default score change to context when confirmed
   const handleApply = () => {
     setAllScores(defaultScore);
+    setShowFeedback(true);
+    setTimeout(() => {
+      setShowFeedback(false);
+    }, 1500); // Show feedback for 1.5 seconds
   };
 
   // Close when clicking outside the modal
@@ -72,10 +77,14 @@ export default function GameSettingsModal({ onClose }: { onClose: () => void }) 
             />
             <button
               onClick={handleApply}
-              className="ml-2 px-3 py-1 bg-blue-600 rounded hover:bg-blue-700 text-white font-semibold text-sm"
+              className={`ml-2 px-3 py-1 rounded text-white font-semibold text-sm ${
+                showFeedback 
+                  ? "bg-green-600 hover:bg-green-700" 
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
               aria-label="Apply Default Score"
             >
-              Set as Default
+              {showFeedback ? "Applied!" : "Set as Default"}
             </button>
           </label>
           <div className="flex items-center justify-between mb-2">
