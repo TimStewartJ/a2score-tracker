@@ -3,9 +3,10 @@ import { useScore } from "~/context/ScoreContext";
 import { PlusIcon, MinusIcon, Cog6ToothIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export default function GameSettingsModal({ onClose }: { onClose: () => void }) {
-  const { state, addPlayer, removePlayer, setAllScores } = useScore();
+  const { state, addPlayer, removePlayer, setAllScores, reset } = useScore();
   const [defaultScore, setDefaultScore] = React.useState(state.defaultScore);
   const [showFeedback, setShowFeedback] = React.useState(false);
+  const [showResetFeedback, setShowResetFeedback] = React.useState(false);
 
   React.useEffect(() => {
     setDefaultScore(state.defaultScore);
@@ -39,6 +40,15 @@ export default function GameSettingsModal({ onClose }: { onClose: () => void }) 
     }, 1500); // Show feedback for 1.5 seconds
   };
 
+  // Reset all scores to default
+  const handleReset = () => {
+    reset();
+    setShowResetFeedback(true);
+    setTimeout(() => {
+      setShowResetFeedback(false);
+    }, 1500); // Show feedback for 1.5 seconds
+  };
+
   // Close when clicking outside the modal
   const backdropRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -66,6 +76,15 @@ export default function GameSettingsModal({ onClose }: { onClose: () => void }) 
           Game Settings
         </h2>
         <div className="space-y-6">
+          <button
+            onClick={handleReset}
+            className={`w-full px-4 py-2 mb-4 bg-purple-600 rounded hover:bg-purple-700 flex items-center justify-center text-white ${
+              showResetFeedback ? "bg-green-600 hover:bg-green-700" : "bg-purple-600 hover:bg-purple-700"
+            }`}
+            aria-label="Reset Scores"
+          >
+            {showResetFeedback ? "Scores Reset!" : "Reset All Scores"}
+          </button>
           <label className="flex items-center space-x-2">
             <span className="text-sm">Default Score:</span>
             <input
